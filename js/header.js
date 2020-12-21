@@ -162,13 +162,17 @@ function readyPortChecker() {
     });
 }
 
-function getCurrentPage(param) {
+function getCurrentPage() {
     var value = "home";
-    queryString = window.location.href.split("?")[1];
-    if (queryString) {
-        queryString.split("&").some(function(item) {
-            return item.split("=")[0] == param && (value = item.split("=")[1]);
-        });
+    queryString = window.location.href.split("/");
+    if (queryString.length) {
+        if (queryString[queryString.length - 1]) {
+            var route = queryString[queryString.length - 1];
+            return route.split('.')[0];
+        }
+        // queryString.split("&").some(function(item) {
+        //     return item.split("=")[0] == param && (value = item.split("=")[1]);
+        // });
     }
     return value;
 }
@@ -328,7 +332,8 @@ function callAjax(directory, href, type) {
     previousType = type;
 
     var jq = $.ajax({
-        url: directory + href + ".php", // create the necessary path for our ajax request
+        // url: directory + href + ".php", // create the necessary path for our ajax request
+        url: directory + href + ".html",
         dataType: "html",
         beforeSend: function() {
             scrollTo("body");
@@ -340,7 +345,8 @@ function callAjax(directory, href, type) {
         success: function(data) {
             $("#body-container").html(data); // place our ajaxed content into our content area
             if (type == "click") {
-                History.pushState(null, href, "index.php?route=" + href);
+                // History.pushState(null, href, "index.php?route=" + href);
+                History.pushState(null, href, href + ".html");
                 // change the url and add our ajax request to our history
             }
             changeDescription(href);
@@ -372,7 +378,8 @@ function ajaxifyApp() {
         e
     ) {
         let $this = $(this);
-        let href = $this.attr("href"); // use the href value to determine what content to ajax in
+        // let href = $this.attr("href"); // use the href value to determine what content to ajax in
+        let href = $this.attr("href").split('.')[0];
         let currentPage = getCurrentPage("route");
         if (href != currentPage) callAjax(directory, href, "click");
         e.preventDefault(); // we don't want the anchor tag to perform its native function
